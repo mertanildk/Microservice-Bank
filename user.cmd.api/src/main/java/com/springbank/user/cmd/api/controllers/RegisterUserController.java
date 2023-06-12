@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -18,16 +19,19 @@ public class RegisterUserController {
 
 
     @PostMapping
-    public ResponseEntity<RegisterUserResponse> registerUser(@RequestBody RegisterUserCommand command) {
-        try {
-            command.setId(UUID.randomUUID().toString());
-            commandGateway.sendAndWait(command);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterUserResponse("User successfully registered"));
-        } catch (Exception e) {
-            var safeErrorMessage = "Error while processing register user request for id - " + command.getId();
-            System.out.println(e.fillInStackTrace());
-            return ResponseEntity.internalServerError().body(new RegisterUserResponse(safeErrorMessage));
-        }
+    public ResponseEntity<RegisterUserResponse> registerUser(@Valid @RequestBody RegisterUserCommand command) {
+        var id = UUID.randomUUID().toString();
+        command.setId(id);
 
+        try {
+            commandGateway.send(command);
+
+            return new ResponseEntity<>(new RegisterUserResponse(id, "User successfully registered!"), HttpStatus.CREATED);
+        } catch (Exception e) {
+            var safeErrorMessage = "Error while processing register user request for id - " + id;
+            System.out.println(e);
+
+            return new ResponseEntity<>(new RegisterUserResponse(id, safeErrorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

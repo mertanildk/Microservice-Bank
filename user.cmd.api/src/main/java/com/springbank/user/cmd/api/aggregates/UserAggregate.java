@@ -23,22 +23,26 @@ public class UserAggregate {
     private String id;
     private User user;
 
+    private final PasswordEncoder passwordEncoder;
+
     public UserAggregate() {
         passwordEncoder = new PasswordEncoderImpl();
     }
-    private final PasswordEncoder passwordEncoder;
 
-    public UserAggregate(RegisterUserCommand userCommand) {
+    @CommandHandler
+    public UserAggregate(RegisterUserCommand command) {
+        var newUser = command.getUser();
+        newUser.setId(command.getId());
+        var password = newUser.getAccount().getPassword();
         passwordEncoder = new PasswordEncoderImpl();
-        var newUser = userCommand.getUser();
-        newUser.setId(userCommand.getId());
-        String hashedPassword = getHashedPassword(newUser);
+        var hashedPassword = passwordEncoder.hashPassword(password);
         newUser.getAccount().setPassword(hashedPassword);
 
         var event = UserRegisteredEvent.builder()
-                .id(userCommand.getId())
+                .id(command.getId())
                 .user(newUser)
                 .build();
+
         AggregateLifecycle.apply(event);
     }
 
@@ -46,7 +50,8 @@ public class UserAggregate {
     public void handle(UpdateUserCommand command) {
         var updatedUser = command.getUser();
         updatedUser.setId(command.getId());
-        String hashedPassword = getHashedPassword(updatedUser);
+        var password = updatedUser.getAccount().getPassword();
+        var hashedPassword = passwordEncoder.hashPassword(password);
         updatedUser.getAccount().setPassword(hashedPassword);
 
         var event = UserUpdatedEvent.builder()
@@ -61,6 +66,7 @@ public class UserAggregate {
     public void handle(RemoveUserCommand command) {
         var event = new UserRemovedEvent();
         event.setId(command.getId());
+
         AggregateLifecycle.apply(event);
     }
 
@@ -73,17 +79,10 @@ public class UserAggregate {
     @EventSourcingHandler
     public void on(UserUpdatedEvent event) {
         this.user = event.getUser();
-
-
     }
 
     @EventSourcingHandler
     public void on(UserRemovedEvent event) {
         AggregateLifecycle.markDeleted();
-    }
-
-    private String getHashedPassword(User updatedUser) {
-        var password = updatedUser.getAccount().getPassword();
-        return passwordEncoder.hashPassword(password);
     }
 }
