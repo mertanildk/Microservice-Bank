@@ -1,6 +1,6 @@
 package com.springbank.user.query.api.handlers;
 
-import com.springbank.user.query.api.dto.UserLookUpResponse;
+import com.springbank.user.query.api.dto.UserLookupResponse;
 import com.springbank.user.query.api.queries.FindAllUsersQuery;
 import com.springbank.user.query.api.queries.FindUserByIdQuery;
 import com.springbank.user.query.api.queries.SearchUsersQuery;
@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 @RequiredArgsConstructor
 public class UserQueryHandlerImpl implements UserQueryHandler {
@@ -16,22 +18,22 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
 
     @Override
     @QueryHandler
-    public UserLookUpResponse getUserById(FindUserByIdQuery query) {
+    public UserLookupResponse getUserById(FindUserByIdQuery query) {
         var user = userRepository.findById(query.getId());
-        return user.map(UserLookUpResponse::new).orElse(null);
+        return user.map(UserLookupResponse::new).orElse(null);
     }
 
     @Override
     @QueryHandler
-    public UserLookUpResponse searchUsers(SearchUsersQuery query) {
-        var users = userRepository.findByFiltersRegex(query.getFilter());
-        return new UserLookUpResponse(users);
+    public UserLookupResponse searchUsers(SearchUsersQuery query) {
+        var users = new ArrayList<>(userRepository.findByFiltersRegex(query.getFilter()));
+        return new UserLookupResponse(users);
     }
 
     @Override
     @QueryHandler
-    public UserLookUpResponse getAllUsers(FindAllUsersQuery query) {
+    public UserLookupResponse getAllUsers(FindAllUsersQuery query) {
         var users = userRepository.findAll();
-        return new UserLookUpResponse(users);
+        return new UserLookupResponse(users);
     }
 }

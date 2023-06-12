@@ -1,14 +1,14 @@
 package com.springbank.user.query.api.handlers;
 
-import com.springbank.user.query.api.dto.UserLookUpResponse;
+import com.springbank.user.query.api.dto.UserLookupResponse;
 import com.springbank.user.query.api.queries.FindAllUsersQuery;
 import com.springbank.user.query.api.queries.FindUserByIdQuery;
 import com.springbank.user.query.api.queries.SearchUsersQuery;
 
 public interface UserQueryHandler {
-    UserLookUpResponse getUserById(FindUserByIdQuery query);
+    UserLookupResponse getUserById(FindUserByIdQuery query);
 
-    UserLookUpResponse searchUsers(SearchUsersQuery query);
+    UserLookupResponse searchUsers(SearchUsersQuery query);
 
-    UserLookUpResponse getAllUsers(FindAllUsersQuery query);
+    UserLookupResponse getAllUsers(FindAllUsersQuery query);
 }

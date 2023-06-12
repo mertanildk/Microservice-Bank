@@ -1,6 +1,7 @@
 package com.springbank.user.cmd.api.dto;
 
 
+import com.springbank.user.core.dto.BaseResponse;
 import lombok.Getter;
 import lombok.Setter;
 
