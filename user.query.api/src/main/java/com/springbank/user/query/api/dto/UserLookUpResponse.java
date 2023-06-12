@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserLookUpResponse {
     private List<User> users;
-
     public UserLookUpResponse(User user) {
         this.users = new ArrayList<>();
         this.users.add(user);
